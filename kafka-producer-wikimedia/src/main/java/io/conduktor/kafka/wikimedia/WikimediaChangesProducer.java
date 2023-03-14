@@ -41,9 +41,18 @@ public class WikimediaChangesProducer {
 
         /* we produce for 10 mins and block the program until then */
         try {
-            TimeUnit.MINUTES.sleep(10);
+            TimeUnit.MINUTES.sleep(1);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                log.info("Detected a shutdown, let's exit by calling produce.close()...");
+                producer.close();
+                log.info("Producer is now gracefully shut down");
+            }
+        });
+
     }
 }
