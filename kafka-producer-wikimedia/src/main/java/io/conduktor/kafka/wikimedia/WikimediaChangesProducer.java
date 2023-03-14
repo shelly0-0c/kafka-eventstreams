@@ -46,11 +46,19 @@ public class WikimediaChangesProducer {
             throw new RuntimeException(e);
         }
 
+        final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 log.info("Detected a shutdown, let's exit by calling produce.close()...");
                 producer.close();
                 log.info("Producer is now gracefully shut down");
+
+                // join main thread to allow execution of the code in the main thread
+                try {
+                    mainThread.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
